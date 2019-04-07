@@ -9,7 +9,6 @@ ICPC = [1, 1.5, 2]
 ML = [6, 7]
 SL = 500
 SC = [5, 20]
-E = ['A', 'T', 'C', 'G']
 
 
 def generate_seq(seq_count, seq_len):
@@ -25,27 +24,42 @@ def generate_seq(seq_count, seq_len):
 
 
 def seq_func(x):
+    E = ['A', 'T', 'C', 'G']
     x = int(x)
     return E[x]
 
 
 def generate_motif(motif_len, icpc):
+    E = ['A', 'T', 'C', 'G']
+    if icpc == 2:
+        result = []
+        for i in range(motif_len):
+            motif = [0, 0, 0, 0]
+            one = np.random.choice(E, 1)
+            motif[E.index(one)] = 1
+            result.append(motif)
+        return result
+
     motif = []
     for i in range(motif_len):
-        w0 = random.randint(1, 100)
-        w1 = random.randint(1, 100-w0)
-        w0 = w0/100
-        w1 = w1/100
-        sum = 1 - w0 - w1
-        # x = Symbol('x')
-        # w2 = nonlinsolve([x*log(4*x) + (sum-x)*log(sum-x) - icpc], x)
-        # w3 = sum - w2
-        # motif.append([w0, w1, w2, w3])
+        w0 = random.randint(1, 5)
+        w1 = random.randint(1, 5)
+        w0 = w0 / 100
+        w1 = w1 / 100
+        rest = 1 - w0 - w1
+        equ = w0 * np.log2(4 * w0) + w1 * np.log2(4 * w1) - icpc
+        func = lambda x: x * np.log2(4 * x) + (rest - x) * np.log2(4 * (rest - x)) + equ
+        w2 = fsolve(func, 1e-9)
+        w3 = rest - w2[0]
+        line = [w0, w1, w2[0], w3]
+        np.random.shuffle(line)
+        motif.append(line)
     return motif
 
 
 def generate_site(motif, seq_count):
     sites = []
+    E = ['A', 'T', 'C', 'G']
     for i in range(seq_count):
         site = []
         for row in motif:
@@ -100,57 +114,40 @@ def write_file(sequences, sites, motif, motif_len, count):
 # # directory for all the benchmarks
 # os.mkdir('benchmark', 0o777)
 
-# count = 0
-# for i in range(10):
-#     # generate combination (a)
-#     ml = 8
-#     sc = 10
-#     for icpc in ICPC:
-#         sequences = generate_seq(sc, SL)
-#         motif = generate_motif(ml, icpc)
-#         sites = generate_site(motif, sc)
-#         result = plant(sites, sequences)
-#         write_file(sequences, sites, motif, ml, count)
-#         count += 1
-#
-#     # generate combination (b)
-#     icpc = 2
-#     sc = 10
-#     for ml in ML:
-#         sequences = generate_seq(sc, SL)
-#         motif = generate_motif(ml, icpc)
-#         sites = generate_site(motif, sc)
-#         result = plant(sites, sequences)
-#         write_file(sequences, sites, motif, ml, count)
-#         count += 1
-#
-#     # generate combination (c)
-#     ml = 8
-#     icpc = 2
-#     for sc in SC:
-#         sequences = generate_seq(sc, SL)
-#         motif = generate_motif(ml, icpc)
-#         sites = generate_site(motif, sc)
-#         result = plant(sites, sequences)
-#         write_file(sequences, sites, motif, ml, count)
-#         count += 1
+count = 0
+for i in range(10):
+    # generate combination (a)
+    ml = 8
+    sc = 10
+    for icpc in ICPC:
+        sequences = generate_seq(sc, SL)
+        motif = generate_motif(ml, icpc)
+        sites = generate_site(motif, sc)
+        result = plant(sites, sequences)
+        write_file(sequences, sites, motif, ml, count)
+        print('finish dataset ', count)
+        count += 1
 
+    # generate combination (b)
+    icpc = 2
+    sc = 10
+    for ml in ML:
+        sequences = generate_seq(sc, SL)
+        motif = generate_motif(ml, icpc)
+        sites = generate_site(motif, sc)
+        result = plant(sites, sequences)
+        write_file(sequences, sites, motif, ml, count)
+        print('finish dataset ', count)
+        count += 1
 
-import matplotlib.pyplot as plt
-w0 = random.randint(1, 100)
-w1 = random.randint(1, 99-w0)
-w0 = w0/100
-w1 = w1/100
-rest = 1 - w0 - w1
-icpc = 1
-equ = w0*np.log2(4*w0) + w1*np.log2(4*w1) - icpc
-tau = np.linspace(0, rest, 201)
-func = lambda x : x*np.log2(4*x) + (rest-x)*np.log2(4*(rest-x)) + equ
-plt.plot(tau, func(tau))
-plt.xlabel("tau")
-plt.ylabel("expression value")
-plt.grid()
-plt.savefig('plot.png')
-
-tau_solution = fsolve(func, rest/1000)
-print(tau_solution)
+    # generate combination (c)
+    ml = 8
+    icpc = 2
+    for sc in SC:
+        sequences = generate_seq(sc, SL)
+        motif = generate_motif(ml, icpc)
+        sites = generate_site(motif, sc)
+        result = plant(sites, sequences)
+        write_file(sequences, sites, motif, ml, count)
+        print('finish dataset ', count)
+        count += 1
