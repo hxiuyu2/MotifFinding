@@ -72,14 +72,16 @@ def generate_site(motif, seq_count):
 
 def plant(sites, sequences):
     result = []
+    locations = []
     seq_len = len(sequences[0])
     mot_len = len(sites[0])
     for index, seq in enumerate(sequences):
         s = sites[index]
         location = random.randint(0, seq_len - mot_len)
+        locations.append(location)
         line = ''.join((seq[:location], s, seq[location + mot_len:]))
         result.append(line)
-    return result
+    return result, locations
 
 
 def write_file(sequences, sites, motif, motif_len, count):
@@ -94,7 +96,7 @@ def write_file(sequences, sites, motif, motif_len, count):
     # write sites to 'sites.txt'
     file = open('benchmark/dataset' + str(count) + '/sites.txt', 'w+')
     for row in sites:
-        file.write(row + '\n')
+        file.write(str(row) + '\n')
     file.close()
 
     # write motif to 'motif.txt'
@@ -123,8 +125,8 @@ for i in range(10):
         sequences = generate_seq(sc, SL)
         motif = generate_motif(ml, icpc)
         sites = generate_site(motif, sc)
-        result = plant(sites, sequences)
-        write_file(sequences, sites, motif, ml, count)
+        result, locations = plant(sites, sequences)
+        write_file(sequences, locations, motif, ml, count)
         print('finish dataset ', count)
         count += 1
 
@@ -135,8 +137,8 @@ for i in range(10):
         sequences = generate_seq(sc, SL)
         motif = generate_motif(ml, icpc)
         sites = generate_site(motif, sc)
-        result = plant(sites, sequences)
-        write_file(sequences, sites, motif, ml, count)
+        result,locations = plant(sites, sequences)
+        write_file(sequences, locations, motif, ml, count)
         print('finish dataset ', count)
         count += 1
 
@@ -147,7 +149,7 @@ for i in range(10):
         sequences = generate_seq(sc, SL)
         motif = generate_motif(ml, icpc)
         sites = generate_site(motif, sc)
-        result = plant(sites, sequences)
-        write_file(sequences, sites, motif, ml, count)
+        result,locations = plant(sites, sequences)
+        write_file(sequences, locations, motif, ml, count)
         print('finish dataset ', count)
         count += 1
