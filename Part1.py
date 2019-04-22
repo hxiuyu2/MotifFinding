@@ -126,7 +126,7 @@ for i in range(10):
         motif = generate_motif(ml, icpc)
         sites = generate_site(motif, sc)
         result, locations = plant(sites, sequences)
-        write_file(sequences, locations, motif, ml, count)
+        write_file(result, locations, motif, ml, count)
         print('finish dataset ', count)
         count += 1
 
@@ -138,7 +138,7 @@ for i in range(10):
         motif = generate_motif(ml, icpc)
         sites = generate_site(motif, sc)
         result,locations = plant(sites, sequences)
-        write_file(sequences, locations, motif, ml, count)
+        write_file(result, locations, motif, ml, count)
         print('finish dataset ', count)
         count += 1
 
@@ -150,6 +150,6 @@ for i in range(10):
         motif = generate_motif(ml, icpc)
         sites = generate_site(motif, sc)
         result,locations = plant(sites, sequences)
-        write_file(sequences, locations, motif, ml, count)
+        write_file(result, locations, motif, ml, count)
         print('finish dataset ', count)
         count += 1
