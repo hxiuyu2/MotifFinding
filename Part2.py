@@ -66,8 +66,8 @@ def meme(sequences, motif_len):
     max_score = 0
     best_p = []
     for k in range(len(sequences)):
-        rand_list = np.random.choice(range(SEQ_LEN-motif_len), 20)
-        for l in rand_list:
+        walk_list = range(0, 492, 20)
+        for l in walk_list:
             init_p = np.zeros(shape=(4, motif_len+1)) + 0.17
             init_p[0][0] = 0.25
             init_p[1][0] = 0.25
