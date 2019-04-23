@@ -1,71 +1,17 @@
 import numpy as np
 from copy import deepcopy
 
-LOOP_TIME = 300
+
 SEQ_LEN = 500
 ALPHA = ['A', 'T', 'C', 'G']
 
 
-# def gibbs_sampler(sequences, motif_len):
-#     seq_cnt = len(sequences)
-#     sites = np.random.randint(0, SEQ_LEN - motif_len, seq_cnt).tolist()
-#     for i in range(LOOP_TIME):
-#         for j in range(seq_cnt):
-#             temp_seq = sequences[:j]+sequences[j+1:]
-#             temp_st = sites[:j]+sites[j+1:]
-#             temp_motif = get_motif(temp_seq, temp_st, motif_len)
-#             cur_prob = get_p(temp_motif, sequences[j], motif_len)
-#             sites[j] = np.random.choice(SEQ_LEN - motif_len, 1, p=cur_prob)[0]
-#     return sites, get_motif(sequences, sites, motif_len)
-#
-#
-# def get_motif(sequences, sites, motif_len):
-#     seq_cnt = len(sequences)
-#     motif= np.zeros([4, motif_len]) + 0.1/seq_cnt
-#     motif = motif.tolist()
-#     for i in range(seq_cnt):
-#         plant = sequences[i][sites[i]:sites[i]+motif_len]
-#         for j in range(motif_len):
-#             pos = ALPHA.index(plant[j])
-#             motif[pos][j] += 1/seq_cnt
-#     return motif
-#
-#
-# def get_p(motif, sequence, motif_len):
-#     p_a = np.prod([motif[ALPHA.index(a)][i] for i, a in enumerate(sequence[0:motif_len])])
-#     prob = [p_a]
-#     for i in range(SEQ_LEN - motif_len - 1):
-#         next_prob = prob[-1]* motif[ALPHA.index(sequence[i+motif_len])][-1] / motif[ALPHA.index(sequence[i])][0]
-#         prob.append(next_prob)
-#     prob = prob / np.sum(prob)
-#     return prob
-#
-#
-# seq = []
-# sequence_txt = open('benchmark/dataset5/sequences.fa')
-# for line in sequence_txt:
-#     seq.append(line.strip())
-# sequence_txt.close()
-#
-# sts = []
-# sites_txt = open('benchmark/dataset5/sites.txt')
-# for line in sites_txt:
-#     sts.append(int(line.strip()))
-#
-# ml = 8
-# print(sts)
-# ALPHA = ['A','T','C','G']
-# for i in range(5):
-#     print(seq[i][sts[i]:sts[i]+ml])
-#
-
-# EM approach
-# MEME algorithm
+# EM approach: MEME algorithm
 def meme(sequences, motif_len):
     # loop to find a relatively good start point
     max_score = 0
     best_p = []
-    walk_list = range(0, SEQ_LEN-motif_len, 10)
+    walk_list = range(0, SEQ_LEN-motif_len)
     for l in walk_list:
         init_p = np.zeros(shape=(4, motif_len+1)) + 0.17
         init_p[0][0] = 0.25
@@ -75,7 +21,7 @@ def meme(sequences, motif_len):
         for j in range(motif_len):
             character = ALPHA.index(sequences[0][j+l])
             init_p[character][j+1] = 0.5
-        z_t = e_step(sequences, motif_len, init_p)
+        z_t = update_z(sequences, init_p, motif_len)
         p_matrix = m_step(sequences, z_t, motif_len)
 
         # calculate score
@@ -84,12 +30,14 @@ def meme(sequences, motif_len):
             for j in range(4):
                 cur_score += p_matrix[j][i+1]*np.log2(p_matrix[j][i+1]/p_matrix[j][0])
 
+        # print(cur_score)
         if cur_score > max_score:
             max_score = cur_score
             best_p = deepcopy(p_matrix)
 
     # assign p w/ max likelihood as start point
-    p_matrix = deepcopy(best_p)
+    p_matrix = best_p
+    prev_ind = [0]*(motif_len+1)
 
     # loop until converge
     while True:
@@ -97,12 +45,17 @@ def meme(sequences, motif_len):
         p_next = m_step(sequences, z_t, motif_len)
 
         # if change in p < e
-        diff = np.sum(abs(np.array(p_matrix) - np.array(p_next)))
-        print(diff)
-        if diff < 0.1:
+        diff = np.sum(abs(np.array(p_matrix[:][1:]) - np.array(p_next[:][1:])))
+        # print(diff)
+        ind = np.argmax(p_next, axis=0)
+        # print([ALPHA[i] for i in ind[1:]])
+        diff_ind = np.sum(abs(np.array(ind[:][1:]) - np.array(prev_ind[:][1:])))
+        if diff < 0.1 or diff_ind == 0:
             break
         else:
-            p_matrix = deepcopy(p_next)
+            p_matrix = p_next
+            prev_ind = ind
+    z_t = e_step(sequences, motif_len, p_matrix)
     return z_t, p_next
 
 
@@ -123,41 +76,80 @@ def m_step(sequences, z_t, motif_len):
     # calculate n(c, k), k>0
     n_ck = np.zeros(shape=(4, motif_len+1))
     for i in range(len(sequences)):
-        for j in range(SEQ_LEN-motif_len):
-            p_t[ALPHA.index(sequences[i][j])][0] += 1/SEQ_LEN/len(sequences)
+        for j in range(SEQ_LEN-motif_len+1):
+            n_ck[ALPHA.index(sequences[i][j])][0] += 1  # /SEQ_LEN/len(sequences)
             for k in range(motif_len):
-                n_ck[ALPHA.index(sequences[i][j+k-1])][k+1] += z_t[i][j]
+                n_ck[ALPHA.index(sequences[i][j+k])][k+1] += z_t[i][j]
+
+    # n(c, k) when k = 0
+    for i in range(4):
+        n_ck[i][0] -= np.sum(n_ck[i][1:])
 
     # calculate p(c, k)
-    for i in range(1, motif_len+1):
+    for i in range(motif_len+1):
+        sum_n = np.sum([num[i] + 1 for num in n_ck])
         for j in range(4):
-            sum_n = np.sum([num[i] for num in n_ck])
-            p_t[j][i] = n_ck[j][i] / sum_n
+            p_t[j][i] = (n_ck[j][i]+1) / sum_n
     return p_t
 
 
 def get_prob(sequence, p_matrix, start, motif_len):
     result = 1
     for i in range(SEQ_LEN):
-        if i < start or i > start + motif_len:
+        if i < start or i >= start + motif_len:
             result *= p_matrix[ALPHA.index(sequence[i])][0]
         else:
-            result *= p_matrix[ALPHA.index(sequence[i])][i-start]
+            result *= p_matrix[ALPHA.index(sequence[i])][i-start+1]
     return result
 
 
-# test for one bench
-seq_file = open('benchmark/dataset6/sequences.fa')
-seq_list = []
-for line in seq_file:
-    seq_list.append(line.strip())
-ml = 8
+def update_z(sequences, p_matrix, motif_len):
+    z_t = np.zeros((len(sequences), SEQ_LEN - motif_len + 1))
+    for i in range(len(sequences)):
+        for j in range(SEQ_LEN - motif_len + 1):
+            result = 1
+            for k in range(motif_len):
+                result *= p_matrix[ALPHA.index(sequences[i][k+j])][k]
+            z_t[i][j] = result
+    row_sums = np.sum(z_t, axis=1)
+    z_t = np.divide(z_t, row_sums[:, np.newaxis])
+    return z_t
+
+
+# test for benchmarks
+import os
 import time
-start = time.time()
-z, result = meme(seq_list, ml)
-end = time.time()
-for z_i in z:
-    print(np.argmax(z_i))
-indexs = np.argmax(result, axis=0)
-print([ALPHA[i] for i in indexs[1:]])
-print('runtime: ',end - start)
+
+
+os.mkdir('MEME', 0o777)
+
+for i in range(70):
+    seq_file = open('benchmark/dataset{}/sequences.fa'.format(str(i)))
+    seq_list = []
+    for line in seq_file:
+        seq_list.append(line.strip())
+    ml_file = open('benchmark/dataset{}/motiflength.txt'.format(str(i)))
+    ml = int(ml_file.readline().strip())
+
+    # calculate runtime
+    start = time.time()
+    z, result = meme(seq_list, ml)
+    end = time.time()
+
+    os.mkdir('MEME/dataset{}'.format(str(i)), 0o777)
+
+    # write sites to file
+    pred_site = open('MEME/dataset{}/predictedsites.txt'.format(str(i)), 'w+')
+    for z_i in z:
+        pred_site.write(str(np.argmax(z_i)))
+        pred_site.write('\n')
+    pred_site.close()
+
+    # write motif to file
+    pred_motif = open('MEME/dataset{}/predictedmotif.txt'.format(str(i)), 'w+')
+    for j in range(1, ml+1):
+        pred_motif.write('{} {} {} {}'.format(str(result[0][j]), str(result[1][j]), str(result[2][j]), str(result[3][j])))
+        pred_motif.write('\n')
+    pred_motif.close()
+
+    print('for dataset {}, runtime: {}sec'.format(str(i), str(end - start)))
