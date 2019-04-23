@@ -1,5 +1,5 @@
 import numpy as np
-from copy import copy, deepcopy
+from copy import deepcopy
 
 LOOP_TIME = 300
 SEQ_LEN = 500
@@ -62,32 +62,31 @@ ALPHA = ['A', 'T', 'C', 'G']
 # EM approach
 # MEME algorithm
 def meme(sequences, motif_len):
-    # loop to find start points
+    # loop to find a relatively good start point
     max_score = 0
     best_p = []
-    for k in range(len(sequences)):
-        walk_list = range(0, 492, 20)
-        for l in walk_list:
-            init_p = np.zeros(shape=(4, motif_len+1)) + 0.17
-            init_p[0][0] = 0.25
-            init_p[1][0] = 0.25
-            init_p[2][0] = 0.25
-            init_p[3][0] = 0.25
-            for j in range(motif_len):
-                character = ALPHA.index(sequences[k][j+l])
-                init_p[character][j+1] = 0.5
-            z_t = e_step(sequences, motif_len, init_p)
-            p_matrix = m_step(sequences, z_t, motif_len)
+    walk_list = range(0, SEQ_LEN-motif_len, 10)
+    for l in walk_list:
+        init_p = np.zeros(shape=(4, motif_len+1)) + 0.17
+        init_p[0][0] = 0.25
+        init_p[1][0] = 0.25
+        init_p[2][0] = 0.25
+        init_p[3][0] = 0.25
+        for j in range(motif_len):
+            character = ALPHA.index(sequences[0][j+l])
+            init_p[character][j+1] = 0.5
+        z_t = e_step(sequences, motif_len, init_p)
+        p_matrix = m_step(sequences, z_t, motif_len)
 
-            # calculate score
-            cur_score = 0
-            for i in range(motif_len):
-                for j in range(4):
-                    cur_score += p_matrix[j][i+1]*np.log2(p_matrix[j][i+1]/p_matrix[j][0])
+        # calculate score
+        cur_score = 0
+        for i in range(motif_len):
+            for j in range(4):
+                cur_score += p_matrix[j][i+1]*np.log2(p_matrix[j][i+1]/p_matrix[j][0])
 
-            if cur_score > max_score:
-                max_score = cur_score
-                best_p = deepcopy(p_matrix)
+        if cur_score > max_score:
+            max_score = cur_score
+            best_p = deepcopy(p_matrix)
 
     # assign p w/ max likelihood as start point
     p_matrix = deepcopy(best_p)
@@ -100,7 +99,7 @@ def meme(sequences, motif_len):
         # if change in p < e
         diff = np.sum(abs(np.array(p_matrix) - np.array(p_next)))
         print(diff)
-        if diff < 0.5:
+        if diff < 0.1:
             break
         else:
             p_matrix = deepcopy(p_next)
@@ -147,17 +146,12 @@ def get_prob(sequence, p_matrix, start, motif_len):
     return result
 
 
-seq_file = open('benchmark/dataset5/sequences.fa')
+# test for one bench
+seq_file = open('benchmark/dataset6/sequences.fa')
 seq_list = []
 for line in seq_file:
     seq_list.append(line.strip())
 ml = 8
-# GAAATTGC
-# 22
-# 6
-# 158
-# 437
-# 115
 import time
 start = time.time()
 z, result = meme(seq_list, ml)
