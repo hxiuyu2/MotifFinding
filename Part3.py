@@ -3,10 +3,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
+algorithm = 'Gibbs_No_F'
+
 def compute_dkl():
     res = []
     for i in range(70):
-        with open("benchmark/dataset{}/motif.txt".format(str(i)),"r") as file1, open ("MEME/dataset{}/predictedmotif.txt".format(str(i)),"r") as file2:
+        with open("benchmark/dataset{}/motif.txt".format(str(i)),"r") as file1, open (algorithm+"/dataset{}/motif.txt".format(str(i)),"r") as file2:
             line1 = file1.readline()
             file2.readline()
             ML = int(line1.split()[1])
@@ -34,7 +36,7 @@ def compute_position():
     result = []
     for i in range(70):
         with open("benchmark/dataset{}/motif.txt".format(str(i)), "r") as file1, open(
-                "MEME/dataset{}/predictedsites.txt".format(str(i)), "r") as file3, open(
+                algorithm+"/dataset{}/sites.txt".format(str(i)), "r") as file3, open(
             "benchmark/dataset{}/sites.txt".format(str(i)), "r") as file2:
             num = int(file1.readline().split()[1])
 
@@ -67,7 +69,7 @@ def comput_overlap():
     result = []
     for i in range(70):
         with open("benchmark/dataset{}/sequences.fa".format(str(i)), "r") as file1, open(
-                "MEME/dataset{}/predictedsites.txt".format(str(i)), "r") as file3, open(
+                algorithm+"/dataset{}/sites.txt".format(str(i)), "r") as file3, open(
             "benchmark/dataset{}/sites.txt".format(str(i)), "r") as file2, open(
             "benchmark/dataset{}/motiflength.txt".format(str(i)),"r") as file4:
             length = int(file4.readline().split()[0])
@@ -115,14 +117,6 @@ def seven_list(List):
         res.append(temp)
 
     return res
-
-
-# def get_runtime():
-#     start = time.time()
-#     # TODO:
-#     # code for part 2
-#     end = time.time()
-#     return end - start
 
 
 def avg_std(metrics):
