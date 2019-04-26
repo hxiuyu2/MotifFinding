@@ -205,6 +205,11 @@ if __name__ == '__main__':
     time, std = avg_std(get_runtime())
     draw(time, 'TIME.png')
 
+    print(kld)
+    print(pos)
+    print(site)
+    print(time)
+
     avg, std = avg_std(kld)
     print('average for KLD is {}, standard error for KLD is {}'.format(avg, std))
     avg, std = avg_std(pos)
