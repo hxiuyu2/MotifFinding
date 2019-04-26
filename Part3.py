@@ -2,7 +2,7 @@ from scipy import *
 import numpy as np
 import matplotlib.pyplot as plt
 import time
-import Part2 as p2
+# import Part2 as p2
 
 
 def compute_dkl():
@@ -79,14 +79,14 @@ def get_overlap():
         predicted.close()
         true_motif.close()
     return result
-
-
-def get_runtime():
-    start = time.time()
-    # TODO:
-    # code for part 2
-    end = time.time()
-    return end - start
+#
+#
+# def get_runtime():
+#     start = time.time()
+#     # TODO:
+#     # code for part 2
+#     end = time.time()
+#     return end - start
 
 
 def avg_std(metrics):
