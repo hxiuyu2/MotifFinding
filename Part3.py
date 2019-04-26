@@ -1,16 +1,15 @@
 from scipy import *
 import numpy as np
 import matplotlib.pyplot as plt
-import time
-#import Part2 as p2
 
 
 def compute_dkl():
     res = []
     for i in range(70):
         with open("benchmark/dataset{}/motif.txt".format(str(i)),"r") as file1, open ("MEME/dataset{}/predictedmotif.txt".format(str(i)),"r") as file2:
-            next(file1)
-            next(file2)
+            line1 = file1.readline()
+            file2.readline()
+            ML = int(line1.split()[1])
             line1 = file1.readline()
             line2 = file2.readline()
             sum = 0
@@ -27,7 +26,7 @@ def compute_dkl():
 
                 line1 = file1.readline()
                 line2 = file2.readline()
-            res.append(sum)
+            res.append(sum/ML)
     return res
 
 
@@ -143,24 +142,24 @@ def draw(y, filename):
 if __name__ == '__main__':
 
     dkl = compute_dkl()
-    print(len(dkl))
-    print(dkl)
+    # print(len(dkl))
+    # print(dkl)
     dkl_final = seven_list(dkl)
 
     position = compute_position()
-    print(len(position))
-    print(position)
+    # print(len(position))
+    # print(position)
     position_final = seven_list(position)
 
     overlap = comput_overlap()
-    print(len(overlap))
-    print(overlap)
+    # print(len(overlap))
+    # print(overlap)
     overlap_final = seven_list(overlap)
 
-
-    print(dkl_final)
-    print(position_final)
-    print(overlap_final)
+    #
+    # print(dkl_final)
+    # print(position_final)
+    # print(overlap_final)
 
     print('average + std for dkl: ', avg_std(dkl_final))
     print('average + std for position: ', avg_std(position_final))
