@@ -46,7 +46,7 @@ def compute_position():
             while line1 and line2:
                 P = line1.split()
                 Q = line2.split()
-                sum += int(P[0]) + num - int(Q[0])
+                sum += num - abs(int(P[0]) - int(Q[0]))
                 #
                 # if int(P[0]) < int(Q[0]):
                 #     temp = int(P[0]) + num - int(Q[0])
