@@ -41,22 +41,25 @@ def compute_position():
 
             line1 = file2.readline()
             line2 = file3.readline()
+            sum = 0
 
             while line1 and line2:
                 P = line1.split()
                 Q = line2.split()
-
-                if int(P[0]) < int(Q[0]):
-                    temp = int(P[0]) + num - int(Q[0])
-                else:
-                    temp = int(Q[0]) + num - int(P[0])
-                if temp <= 0:
-                    temp = 0
-
-                temp += temp
+                sum += int(P[0]) + num - int(Q[0])
+                #
+                # if int(P[0]) < int(Q[0]):
+                #     temp = int(P[0]) + num - int(Q[0])
+                # else:
+                #     temp = int(Q[0]) + num - int(P[0])
+                # if temp <= 0:
+                #     temp = 0
+                #
+                # temp += temp
                 line1 = file2.readline()
                 line2 = file3.readline()
-            result.append(temp)
+            # result.append(temp)
+            result.append(sum)
     return result
 
 
@@ -69,27 +72,35 @@ def comput_overlap():
             "benchmark/dataset{}/sites.txt".format(str(i)), "r") as file2, open(
             "benchmark/dataset{}/motiflength.txt".format(str(i)),"r") as file4:
             length = int(file4.readline().split()[0])
-            Str = file1.read()
+            seq = file1.readline()
             line1 = file2.readline()
             line2 = file3.readline()
             res_count=0
             while line1 and line2:
                 P = line1.split()
                 Q = line2.split()
-                original = Str[int(P[0]):int(P[0])+length-1]
-                predict = Str[int(Q[0]):int(Q[0])+length-1]
-                index1=0
-                index2=0
-                count=0
-                temp_str=""
+                original = seq[int(P[0]):int(P[0])+length-1]
+                predict = seq[int(Q[0]):int(Q[0])+length-1]
+                count = 0
+
+                # index1=0
+                # index2=0
+                # temp_str=""
                 #print(original,predict)
-                while index1 < len(original) and index2 < len(predict):
-                    if original[index1] == predict[index2]:
-                        count+=1
-                    index1+=1
-                    index2+=1
+                # while index1 < len(original) and index2 < len(predict):
+                #     if original[index1] == predict[index2]:
+                #         count+=1
+                #     index1+=1
+                #     index2+=1
+
+                for pred_char, true_char in zip(predict, original):
+                    if pred_char == true_char:
+                        count += 1
+
                 if count >= length / 2:
                     res_count+=1
+
+                seq = file1.readline()
                 line1 = file2.readline()
                 line2 = file3.readline()
             result.append(res_count)
@@ -107,12 +118,12 @@ def seven_list(List):
     return res
 
 
-def get_runtime():
-    start = time.time()
-    # TODO:
-    # code for part 2
-    end = time.time()
-    return end - start
+# def get_runtime():
+#     start = time.time()
+#     # TODO:
+#     # code for part 2
+#     end = time.time()
+#     return end - start
 
 
 def avg_std(metrics):
