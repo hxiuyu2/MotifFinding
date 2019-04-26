@@ -117,7 +117,7 @@ def update_z(sequences, p_matrix, motif_len):
 import os
 import time
 
-os.mkdir('MEME', 0o777)
+# os.mkdir('MEME', 0o777)
 
 for i in range(70):
     seq_file = open('benchmark/dataset{}/sequences.fa'.format(str(i)))
