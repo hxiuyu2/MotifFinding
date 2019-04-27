@@ -131,8 +131,8 @@ def draw(y, filename):
     # plt.plot(range(len(y[0])), y[0], label='Gibbs_F_2')
     # plt.plot(range(len(y[1])), y[1], label='MEME')
     # plt.plot(range(len(y[2])), y[2], label='Gibbs_No_F')
-    plt.plot(range(len(y[0])), y[0], label='MEME')
-    plt.plot(range(len(y[1])), y[1], label='Gibbs_No_F')
+    plt.plot(range(len(y)), y, label='merged')
+    # plt.plot(range(len(y[1])), y[1], label='Gibbs_No_F')
     plt.legend(loc='upper left')
     plt.xticks(np.arange(7), ['ML=8,SC=10,ICPC=1','ML=8,SC=10,ICPC=1.5','ML=8,SC=10,ICPC=2','ML=6,SC=10,ICPC=2','ML=7,SC=10,ICPC=2','ML=8,SC=5,ICPC=2','ML=8,SC=20,ICPC=2'], rotation=90)
     plt.tight_layout()
@@ -140,43 +140,44 @@ def draw(y, filename):
 
 
 def get_runtime():
-    all_runtime = []
+    # all_runtime = []
 
-    runtime_file = open('Gibbs_F_2/runtime.txt')
-    gibbs_f = np.zeros((10,7))
-    cnt = 0
-    for line in runtime_file:
-        if line.startswith('Time'):
-            t = line.split()[1]
-            t = float(t)
-            gibbs_f[int(cnt / 7)][cnt % 7] = t
-            cnt += 1
-    all_runtime.append(gibbs_f.tolist())
-    runtime_file.close()
+    # runtime_file = open('Gibbs_F_2/runtime.txt')
+    # gibbs_f = np.zeros((10,7))
+    # cnt = 0
+    # for line in runtime_file:
+    #     if line.startswith('Time'):
+    #         t = line.split()[1]
+    #         t = float(t)
+    #         gibbs_f[int(cnt / 7)][cnt % 7] = t
+    #         cnt += 1
+    # all_runtime.append(gibbs_f.tolist())
+    # runtime_file.close()
 
-    runtime_file = open('MEME/runtime.txt')
-    meme_time = np.zeros((10,7))
+    runtime_file = open('output/runtime.txt')
+    meme_time = np.zeros((7,10))
     cnt = 0
     for line in runtime_file:
         t = line.split(': ')[1][:-4]
         t = float(t)
-        meme_time[int(cnt / 7)][cnt % 7] = t
+        meme_time[cnt % 7][int(cnt / 7)] = t
         cnt += 1
     runtime_file.close()
-    all_runtime.append(meme_time.tolist())
+    # all_runtime.append(meme_time.tolist())
 
-    runtime_file = open('Gibbs_No_F/runtime.txt')
-    gibbs_time = np.zeros((10,7))
-    cnt = 0
-    for line in runtime_file:
-        if line.startswith('Time'):
-            t = line.split()[1]
-            t = float(t)
-            gibbs_time[int(cnt / 7)][cnt % 7] = t
-            cnt += 1
-    all_runtime.append(gibbs_time.tolist())
-    runtime_file.close()
-    return all_runtime
+    # runtime_file = open('Gibbs_No_F/runtime.txt')
+    # gibbs_time = np.zeros((10,7))
+    # cnt = 0
+    # for line in runtime_file:
+    #     if line.startswith('Time'):
+    #         t = line.split()[1]
+    #         t = float(t)
+    #         gibbs_time[int(cnt / 7)][cnt % 7] = t
+    #         cnt += 1
+    # all_runtime.append(gibbs_time.tolist())
+    # runtime_file.close()
+    # return all_runtime
+    return meme_time
 
 
 if __name__ == '__main__':
@@ -184,7 +185,7 @@ if __name__ == '__main__':
     pos = []
     site = []
 
-    for algo in ['MEME', 'Gibbs_No_F']: # 'Gibbs_F_2',
+    for algo in ['output']: # 'Gibbs_F_2','MEME', 'Gibbs_No_F'
         dkl = compute_dkl(algo)
         dkl_final = seven_list(dkl)
 
@@ -201,11 +202,12 @@ if __name__ == '__main__':
         avg, _ = avg_std(overlap_final)
         site.append(avg)
 
-    draw(kld, 'KLD.png')
-    draw(pos, 'POS.png')
-    draw(site, 'SITE.png')
+    draw(kld[0], 'KLD.png')
+    draw(pos[0], 'POS.png')
+    draw(site[0], 'SITE.png')
     time, _ = avg_std(get_runtime())
     draw(time, 'TIME.png')
+    print(time)
 
     print(kld)
     print(pos)
@@ -218,5 +220,5 @@ if __name__ == '__main__':
     print('average for overlap position is {}, standard error for overlap position is {}'.format(avg, std))
     avg, std = avg_std(site)
     print('average for overlap site is {}, standard error for overlap site is {}'.format(avg, std))
-    avg, std = avg_std(time)
-    print('average for runtime is {}, standard error for runtime is {}'.format(avg, std))
+    # avg, std = avg_std(time)
+    print('average for runtime is {}, standard error for runtime is {}'.format(np.mean(time), np.std(time)))

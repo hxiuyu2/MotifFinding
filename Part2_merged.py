@@ -138,20 +138,6 @@ def background_prob(fa_Seq,sites,motif_len):
 
 
 def gibbs_without_F_until_converge(fa_Seq, motif_len):
-    # fa_path = "benchmark/dataset"+str(file_number)+"/sequences.fa"
-    # fa_in = open(fa_path,"r")
-    # fa_Seq = []
-    # fa_Num = 0
-    # for line in fa_in.readlines():
-    #     line = line.rstrip()
-    #     fa_Num = fa_Num + 1
-    #     fa_Seq.append(line)
-    # # read motiflen
-    # motif_len_path = "benchmark/dataset"+str(file_number)+"/motiflength.txt"
-    # motiflen_in = open(motif_len_path,"r")
-    # motif_len = int(motiflen_in.readline())
-    # set initial value
-    ## step1 random pick initial site
     fa_Num = len(fa_Seq)
     sites = [random.randint(0, (len(fa_Seq[0]) - motif_len)) for i in range(fa_Num)]
     k_mers = []
@@ -221,21 +207,6 @@ def gibbs_without_F_until_converge(fa_Seq, motif_len):
             elif B[j][i] == 'G':
                 M[3][i] += 1
     M = np.array(M)  # pro_matrixpsudo_count_matrix
-    # # write into file:
-    # os.mkdir('Gibbs_No_F/dataset' + str(file_number))
-    # ## write sites to 'sites.txt'
-    # file = open('Gibbs_No_F/dataset' + str(file_number) + '/sites.txt', 'w+')
-    # for row in A[-1]:
-    #     file.write(str(row) + '\n')
-    # file.close()
-    ## write motif to 'motif.txt'
-    # file = open('output/dataset' + str(file_number) + '/predictedmotif.txt', 'w+')
-    # header = 'MOTIF{0}    {1}\n'.format(str(file_number), str(motif_len))
-    # file.write(header)
-    # for row in (M/fa_Num).T:
-    #     line = ' '.join(str(x) for x in row)
-    #     file.write(line + '\n')
-    # file.close()
     return (M / fa_Num).T
 
 
@@ -251,9 +222,7 @@ for i in range(70):
     # calculate runtime
     start = time.time()
     z, _ = meme(seq_list, ml)
-    print('after MEME')
     result = gibbs_without_F_until_converge(seq_list, ml)
-    print('after Gibbs')
     end = time.time()
 
     os.mkdir('output/dataset{}'.format(str(i)), 0o777)
@@ -268,8 +237,8 @@ for i in range(70):
     # write motif to file
     pred_motif = open('output/dataset{}/predictedmotif.txt'.format(str(i)), 'w+')
     pred_motif.write('motif{}    {}\n'.format(str(i), ml))
-    for j in range(1, ml+1):
-        pred_motif.write('{} {} {} {}\n'.format(str(result[0][j]), str(result[1][j]), str(result[2][j]), str(result[3][j])))
+    for j in range(ml):
+        pred_motif.write('{} {} {} {}\n'.format(str(result[j][0]), str(result[j][1]), str(result[j][2]), str(result[j][3])))
     pred_motif.close()
 
     print('for dataset {}, runtime: {}sec'.format(str(i), str(end - start)))
