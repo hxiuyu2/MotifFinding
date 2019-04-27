@@ -128,9 +128,11 @@ def avg_std(metrics):
 
 def draw(y, filename):
     plt.clf()
-    plt.plot(range(len(y[0])), y[0], label='Gibbs_F_2')
-    plt.plot(range(len(y[1])), y[1], label='MEME')
-    plt.plot(range(len(y[2])), y[2], label='Gibbs_No_F')
+    # plt.plot(range(len(y[0])), y[0], label='Gibbs_F_2')
+    # plt.plot(range(len(y[1])), y[1], label='MEME')
+    # plt.plot(range(len(y[2])), y[2], label='Gibbs_No_F')
+    plt.plot(range(len(y[0])), y[0], label='MEME')
+    plt.plot(range(len(y[1])), y[1], label='Gibbs_No_F')
     plt.legend(loc='upper left')
     plt.xticks(np.arange(7), ['ML=8,SC=10,ICPC=1','ML=8,SC=10,ICPC=1.5','ML=8,SC=10,ICPC=2','ML=6,SC=10,ICPC=2','ML=7,SC=10,ICPC=2','ML=8,SC=5,ICPC=2','ML=8,SC=20,ICPC=2'], rotation=90)
     plt.tight_layout()
@@ -182,7 +184,7 @@ if __name__ == '__main__':
     pos = []
     site = []
 
-    for algo in ['Gibbs_F_2', 'MEME', 'Gibbs_No_F']:
+    for algo in ['MEME', 'Gibbs_No_F']: # 'Gibbs_F_2',
         dkl = compute_dkl(algo)
         dkl_final = seven_list(dkl)
 
@@ -192,17 +194,17 @@ if __name__ == '__main__':
         overlap = comput_overlap(algo)
         overlap_final = seven_list(overlap)
 
-        avg, std = avg_std(dkl_final)
+        avg, _ = avg_std(dkl_final)
         kld.append(avg)
-        avg, std = avg_std(position_final)
+        avg, _ = avg_std(position_final)
         pos.append(avg)
-        avg, std = avg_std(overlap_final)
+        avg, _ = avg_std(overlap_final)
         site.append(avg)
 
     draw(kld, 'KLD.png')
     draw(pos, 'POS.png')
     draw(site, 'SITE.png')
-    time, std = avg_std(get_runtime())
+    time, _ = avg_std(get_runtime())
     draw(time, 'TIME.png')
 
     print(kld)
