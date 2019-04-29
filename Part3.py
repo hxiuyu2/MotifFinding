@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 def compute_dkl(algorithm):
     res = []
     for i in range(70):
-        with open("dataset/dataset{}/motif.txt".format(str(i)),"r") as file1, open (algorithm+"/dataset{}/predictedmotif.txt".format(str(i)),"r") as file2:
+        with open("benchmark/dataset{}/motif.txt".format(str(i)),"r") as file1, open (algorithm+"/dataset{}/predictedmotif.txt".format(str(i)),"r") as file2:
             line1 = file1.readline()
             file2.readline()
             ML = int(line1.split()[1])
@@ -16,6 +16,8 @@ def compute_dkl(algorithm):
             line2 = file2.readline()
             sum = 0
             while line1 and line2:
+                if line1.startswith('<') or line2.startswith('<'):
+                    break
                 P = line1.split()
                 Q = line2.split()
                 for j in range(4):
@@ -48,18 +50,8 @@ def compute_position(algorithm):
                 P = line1.split()
                 Q = line2.split()
                 sum += num - min(abs(int(P[0]) - int(Q[0])), num)
-                #
-                # if int(P[0]) < int(Q[0]):
-                #     temp = int(P[0]) + num - int(Q[0])
-                # else:
-                #     temp = int(Q[0]) + num - int(P[0])
-                # if temp <= 0:
-                #     temp = 0
-                #
-                # temp += temp
                 line1 = file2.readline()
                 line2 = file3.readline()
-            # result.append(temp)
             result.append(sum)
     return result
 
@@ -83,17 +75,6 @@ def comput_overlap(algorithm):
                 original = seq[int(P[0]):int(P[0])+length-1]
                 predict = seq[int(Q[0]):int(Q[0])+length-1]
                 count = 0
-
-                # index1=0
-                # index2=0
-                # temp_str=""
-                #print(original,predict)
-                # while index1 < len(original) and index2 < len(predict):
-                #     if original[index1] == predict[index2]:
-                #         count+=1
-                #     index1+=1
-                #     index2+=1
-
                 for pred_char, true_char in zip(predict, original):
                     if pred_char == true_char:
                         count += 1
@@ -115,7 +96,6 @@ def seven_list(List):
         for j in range(i,len(List),7):
             temp.append(List[j])
         res.append(temp)
-
     return res
 
 
@@ -129,9 +109,9 @@ def avg_std(metrics):
 def draw(y, filename):
     plt.clf()
     # plt.plot(range(len(y[0])), y[0], label='Gibbs_F_2')
-    # plt.plot(range(len(y[1])), y[1], label='MEME')
+    plt.plot(range(len(y)), y, label='MEME')
     # plt.plot(range(len(y[2])), y[2], label='Gibbs_No_F')
-    plt.plot(range(len(y)), y, label='merged')
+    # plt.plot(range(len(y)), y, label='merged')
     # plt.plot(range(len(y[1])), y[1], label='Gibbs_No_F')
     plt.legend(loc='upper left')
     plt.xticks(np.arange(7), ['ML=8,SC=10,ICPC=1','ML=8,SC=10,ICPC=1.5','ML=8,SC=10,ICPC=2','ML=6,SC=10,ICPC=2','ML=7,SC=10,ICPC=2','ML=8,SC=5,ICPC=2','ML=8,SC=20,ICPC=2'], rotation=90)
@@ -140,7 +120,7 @@ def draw(y, filename):
 
 
 def get_runtime():
-    # all_runtime = []
+    all_runtime = []
 
     # runtime_file = open('Gibbs_F_2/runtime.txt')
     # gibbs_f = np.zeros((10,7))
@@ -154,7 +134,7 @@ def get_runtime():
     # all_runtime.append(gibbs_f.tolist())
     # runtime_file.close()
 
-    runtime_file = open('output/runtime.txt')
+    runtime_file = open('MEME/runtime.txt')
     meme_time = np.zeros((7,10))
     cnt = 0
     for line in runtime_file:
@@ -163,7 +143,7 @@ def get_runtime():
         meme_time[cnt % 7][int(cnt / 7)] = t
         cnt += 1
     runtime_file.close()
-    # all_runtime.append(meme_time.tolist())
+    all_runtime.append(meme_time.tolist())
 
     # runtime_file = open('Gibbs_No_F/runtime.txt')
     # gibbs_time = np.zeros((10,7))
@@ -185,40 +165,43 @@ if __name__ == '__main__':
     pos = []
     site = []
 
-    for algo in ['MEME']: # 'Gibbs_F_2','MEME', 'Gibbs_No_F'
+    for algo in ['MEME']:
         dkl = compute_dkl(algo)
         dkl_final = seven_list(dkl)
+        # dkl_final = np.array(dkl).reshape((7,10))
 
-        # position = compute_position(algo)
-        # position_final = seven_list(position)
-        #
-        # overlap = comput_overlap(algo)
-        # overlap_final = seven_list(overlap)
+        position = compute_position(algo)
+        position_final = seven_list(position)
+        # position_final = np.array(position).reshape((7,10))
+
+        overlap = comput_overlap(algo)
+        overlap_final = seven_list(overlap)
+        # overlap_final = np.array(overlap).reshape((7,10))
 
         avg, _ = avg_std(dkl_final)
         kld.append(avg)
-        # avg, _ = avg_std(position_final)
-        # pos.append(avg)
-        # avg, _ = avg_std(overlap_final)
-        # site.append(avg)
+        avg, _ = avg_std(position_final)
+        pos.append(avg)
+        avg, _ = avg_std(overlap_final)
+        site.append(avg)
 
-    # draw(kld[0], 'KLD.png')
-    # draw(pos[0], 'POS.png')
-    # draw(site[0], 'SITE.png')
+    draw(kld[0], 'KLDf.png')
+    draw(pos[0], 'POSf.png')
+    draw(site[0], 'SITEf.png')
     # time, _ = avg_std(get_runtime())
     # draw(time, 'TIME.png')
     # print(time)
-
-    print(kld)
+    #
+    # print(kld)
     # print(pos)
     # print(site)
     # print(time)
-
-    avg, std = avg_std(kld)
-    print('average for KLD is {}, standard error for KLD is {}'.format(avg, std))
+    #
+    # avg, std = avg_std(kld)
+    # print('average for KLD is {}, standard error for KLD is {}'.format(avg, std))
     # avg, std = avg_std(pos)
     # print('average for overlap position is {}, standard error for overlap position is {}'.format(avg, std))
     # avg, std = avg_std(site)
     # print('average for overlap site is {}, standard error for overlap site is {}'.format(avg, std))
-    # # avg, std = avg_std(time)
+    # avg, std = avg_std(time)
     # print('average for runtime is {}, standard error for runtime is {}'.format(np.mean(time), np.std(time)))
