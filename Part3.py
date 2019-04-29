@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 def compute_dkl(algorithm):
     res = []
     for i in range(70):
-        with open("benchmark/dataset{}/motif.txt".format(str(i)),"r") as file1, open (algorithm+"/dataset{}/predictedmotif.txt".format(str(i)),"r") as file2:
+        with open("dataset/dataset{}/motif.txt".format(str(i)),"r") as file1, open (algorithm+"/dataset{}/predictedmotif.txt".format(str(i)),"r") as file2:
             line1 = file1.readline()
             file2.readline()
             ML = int(line1.split()[1])
@@ -185,40 +185,40 @@ if __name__ == '__main__':
     pos = []
     site = []
 
-    for algo in ['output']: # 'Gibbs_F_2','MEME', 'Gibbs_No_F'
+    for algo in ['MEME']: # 'Gibbs_F_2','MEME', 'Gibbs_No_F'
         dkl = compute_dkl(algo)
         dkl_final = seven_list(dkl)
 
-        position = compute_position(algo)
-        position_final = seven_list(position)
-
-        overlap = comput_overlap(algo)
-        overlap_final = seven_list(overlap)
+        # position = compute_position(algo)
+        # position_final = seven_list(position)
+        #
+        # overlap = comput_overlap(algo)
+        # overlap_final = seven_list(overlap)
 
         avg, _ = avg_std(dkl_final)
         kld.append(avg)
-        avg, _ = avg_std(position_final)
-        pos.append(avg)
-        avg, _ = avg_std(overlap_final)
-        site.append(avg)
+        # avg, _ = avg_std(position_final)
+        # pos.append(avg)
+        # avg, _ = avg_std(overlap_final)
+        # site.append(avg)
 
-    draw(kld[0], 'KLD.png')
-    draw(pos[0], 'POS.png')
-    draw(site[0], 'SITE.png')
-    time, _ = avg_std(get_runtime())
-    draw(time, 'TIME.png')
-    print(time)
+    # draw(kld[0], 'KLD.png')
+    # draw(pos[0], 'POS.png')
+    # draw(site[0], 'SITE.png')
+    # time, _ = avg_std(get_runtime())
+    # draw(time, 'TIME.png')
+    # print(time)
 
     print(kld)
-    print(pos)
-    print(site)
-    print(time)
+    # print(pos)
+    # print(site)
+    # print(time)
 
     avg, std = avg_std(kld)
     print('average for KLD is {}, standard error for KLD is {}'.format(avg, std))
-    avg, std = avg_std(pos)
-    print('average for overlap position is {}, standard error for overlap position is {}'.format(avg, std))
-    avg, std = avg_std(site)
-    print('average for overlap site is {}, standard error for overlap site is {}'.format(avg, std))
-    # avg, std = avg_std(time)
-    print('average for runtime is {}, standard error for runtime is {}'.format(np.mean(time), np.std(time)))
+    # avg, std = avg_std(pos)
+    # print('average for overlap position is {}, standard error for overlap position is {}'.format(avg, std))
+    # avg, std = avg_std(site)
+    # print('average for overlap site is {}, standard error for overlap site is {}'.format(avg, std))
+    # # avg, std = avg_std(time)
+    # print('average for runtime is {}, standard error for runtime is {}'.format(np.mean(time), np.std(time)))

@@ -89,7 +89,8 @@ def write_file(sequences, sites, motif, motif_len, count):
 
     # write sequences to 'sequences.fa'
     file = open('benchmark/dataset' + str(count) + '/sequences.fa', 'w+')
-    for row in sequences:
+    for ind, row in enumerate(sequences):
+        file.write('>sequence'+str(ind)+'\n')
         file.write(row + '\n')
     file.close()
 
@@ -101,11 +102,12 @@ def write_file(sequences, sites, motif, motif_len, count):
 
     # write motif to 'motif.txt'
     file = open('benchmark/dataset' + str(count) + '/motif.txt', 'w+')
-    header = 'MOTIF{0}    {1}\n'.format(str(count), str(motif_len))
+    header = '>MOTIF{0}    {1}\n'.format(str(count), str(motif_len))
     file.write(header)
     for row in motif:
         line = ' '.join(str(x) for x in row)
         file.write(line + '\n')
+    file.write('<')
     file.close()
 
     # write motif_len to 'motiflength.txt'
@@ -114,7 +116,7 @@ def write_file(sequences, sites, motif, motif_len, count):
     file.close()
 
 # # directory for all the benchmarks
-# os.mkdir('benchmark', 0o777)
+os.mkdir('benchmark', 0o777)
 
 count = 0
 for i in range(10):

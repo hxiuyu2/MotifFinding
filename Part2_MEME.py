@@ -120,11 +120,11 @@ import time
 # os.mkdir('MEME', 0o777)
 
 for i in range(70):
-    seq_file = open('benchmark/dataset{}/sequences.fa'.format(str(i)))
+    seq_file = open('dataset/dataset{}/sequence.fa'.format(str(i)))
     seq_list = []
     for line in seq_file:
         seq_list.append(line.strip())
-    ml_file = open('benchmark/dataset{}/motiflength.txt'.format(str(i)))
+    ml_file = open('dataset/dataset{}/motiflength.txt'.format(str(i)))
     ml = int(ml_file.readline().strip())
 
     # calculate runtime
@@ -132,17 +132,17 @@ for i in range(70):
     z, result = meme(seq_list, ml)
     end = time.time()
 
-    os.mkdir('MEME/dataset{}'.format(str(i)), 0o777)
+    os.mkdir('output/dataset{}'.format(str(i)), 0o777)
 
     # write sites to file
-    pred_site = open('MEME/dataset{}/predictedsites.txt'.format(str(i)), 'w+')
+    pred_site = open('output/dataset{}/predictedsites.txt'.format(str(i)), 'w+')
     for z_i in z:
         pred_site.write(str(np.argmax(z_i)))
         pred_site.write('\n')
     pred_site.close()
 
     # write motif to file
-    pred_motif = open('MEME/dataset{}/predictedmotif.txt'.format(str(i)), 'w+')
+    pred_motif = open('output/dataset{}/predictedmotif.txt'.format(str(i)), 'w+')
     pred_motif.write('motif{}    {}\n'.format(str(i), ml))
     for j in range(1, ml+1):
         pred_motif.write('{} {} {} {}\n'.format(str(result[0][j]), str(result[1][j]), str(result[2][j]), str(result[3][j])))
