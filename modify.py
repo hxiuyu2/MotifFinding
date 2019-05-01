@@ -1,22 +1,15 @@
-# for i in range(70):
-#     file = open('benchmark/dataset{}/motif.txt'.format(str(i)), 'wr+')
-#     ind = 0
-#     contents = []
-#     for line in file:
-#         line = '>sequence'+str(ind)+'\n'+line
-#         contents.append(line)
-#         ind += 1
-#     contents = ''.join(contents)
-#     file.write(contents)
-#     file.close()
+path = 'project_submission/output/gibbs_no_f/loop80000'
 for i in range(70):
-    file = open('dataset/dataset{}/sites.txt'.format(str(i)), 'r')
-    contents = file.read()
+    file = open(path+'/dataset{}/predictedmotif.txt'.format(str(i)), 'r')
+    content = file.read()
     file.close()
 
-    contents = contents.split(',')
-    contents = '\n'.join(contents)
-
-    file = open('dataset/dataset{}/sites.txt'.format(str(i)), 'w')
-    file.write(contents)
+    file = open(path + '/dataset{}/predictedmotif.txt'.format(str(i)), 'w')
+    file.seek(0,0)
+    content = '>'+content+'<'
+    file.write(content)
     file.close()
+
+    # file = open(path+'/dataset{}/predictedmotif.txt'.format(str(i)), 'a+')
+    # file.write('<')
+    # file.close()

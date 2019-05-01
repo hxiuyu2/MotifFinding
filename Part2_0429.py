@@ -23,16 +23,18 @@ def background_prob(fa_Seq,sites,motif_len):
     return background_p
 
 def gibbs_without_F_unitil_converge(file_number):
-    fa_path = "D:/IntroToDataMining-CS412/final project/benchmark/dataset"+str(file_number)+"/sequences.fa"
+    fa_path = "benchmark/dataset"+str(file_number)+"/sequences.fa"
     fa_in = open(fa_path,"r")
     fa_Seq = []
     fa_Num = 0
     for line in fa_in.readlines():
         line = line.rstrip()
-        fa_Num = fa_Num + 1
-        fa_Seq.append(line)
+        if '>' not in line:
+            fa_Num = fa_Num + 1
+            fa_Seq.append(line)
+    print(fa_Seq)
     # read motiflen
-    motif_len_path = "D:/IntroToDataMining-CS412/final project/benchmark/dataset"+str(file_number)+"/motiflength.txt"
+    motif_len_path = "benchmark/dataset"+str(file_number)+"/motiflength.txt"
     motiflen_in = open(motif_len_path,"r")
     motif_len = int(motiflen_in.readline())
     # set initial value
@@ -48,7 +50,7 @@ def gibbs_without_F_unitil_converge(file_number):
     hide_index = 0
     equal_count = 0
     step_count = 0
-    while equal_count < 3 and step_count<80000:
+    while equal_count < 3 and step_count<800:
         step_count += 1
         hide_same = True
         while hide_same:
@@ -89,7 +91,7 @@ def gibbs_without_F_unitil_converge(file_number):
             equal_count = 0
         sites = copy.deepcopy(temp_sites)
         k_mers = copy.deepcopy(temp_k_mers)
-        if equal_count ==3 or step_count == (80000-1):
+        if equal_count ==3 or step_count == (800-1):
             A.append(sites)
             B.append(k_mers)
     B = B[-1]
@@ -106,19 +108,20 @@ def gibbs_without_F_unitil_converge(file_number):
                 M[3][i] += 1
     M = np.array(M)  # pro_matrixpsudo_count_matrix
     # write into file:
-    os.mkdir('Gibbs_No_F_80000/dataset' + str(file_number))
+    os.mkdir('output/dataset' + str(file_number))
     ## write sites to 'sites.txt'
-    file = open('Gibbs_No_F_80000/dataset' + str(file_number) + '/predictedsites.txt', 'w+')
+    file = open('output/dataset' + str(file_number) + '/predictedsites.txt', 'w+')
     for row in A[-1]:
         file.write(str(row) + '\n')
     file.close()
     ## write motif to 'motif.txt'
-    file = open('Gibbs_No_F_80000/dataset' + str(file_number) + '/predictedmotif.txt', 'w+')
-    header = 'MOTIF{0}    {1}\n'.format(str(file_number), str(motif_len))
+    file = open('output/dataset' + str(file_number) + '/predictedmotif.txt', 'w+')
+    header = '>MOTIF{0}    {1}\n'.format(str(file_number), str(motif_len))
     file.write(header)
     for row in (M/fa_Num).T:
         line = ' '.join(str(x) for x in row)
         file.write(line + '\n')
+    file.write('<')
     file.close()
 
 

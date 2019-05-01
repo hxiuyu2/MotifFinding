@@ -106,7 +106,7 @@ def avg_std(metrics):
 
 
 
-def draw(y, filename):
+def draw(y, filename, plotname):
     plt.clf()
     # plt.plot(range(len(y[0])), y[0], label='Gibbs_F_2')
     plt.plot(range(len(y)), y, label='MEME')
@@ -114,6 +114,7 @@ def draw(y, filename):
     # plt.plot(range(len(y)), y, label='merged')
     # plt.plot(range(len(y[1])), y[1], label='Gibbs_No_F')
     plt.legend(loc='upper left')
+    plt.title(plotname)
     plt.xticks(np.arange(7), ['ML=8,SC=10,ICPC=1','ML=8,SC=10,ICPC=1.5','ML=8,SC=10,ICPC=2','ML=6,SC=10,ICPC=2','ML=7,SC=10,ICPC=2','ML=8,SC=5,ICPC=2','ML=8,SC=20,ICPC=2'], rotation=90)
     plt.tight_layout()
     plt.savefig(filename)
@@ -178,25 +179,33 @@ if __name__ == '__main__':
         overlap_final = seven_list(overlap)
         # overlap_final = np.array(overlap).reshape((7,10))
 
-        avg, _ = avg_std(dkl_final)
-        kld.append(avg)
-        avg, _ = avg_std(position_final)
-        pos.append(avg)
-        avg, _ = avg_std(overlap_final)
-        site.append(avg)
+        avg, std = avg_std(dkl_final)
+        # kld.append(avg)
+        draw(std, 'KLD_std.png', 'KLD standard error')
+        print(dkl_final)
+        avg, std = avg_std(position_final)
+        # pos.append(avg)
+        draw(std, 'POS_std.png', 'Position standard error')
+        print(position_final)
+        avg, std = avg_std(overlap_final)
+        # site.append(avg)
+        draw(std, 'SITE_std.png', 'Site standard error')
+        print(std)
 
-    draw(kld[0], 'KLDf.png')
-    draw(pos[0], 'POSf.png')
-    draw(site[0], 'SITEf.png')
-    # time, _ = avg_std(get_runtime())
+    # draw(kld[0], 'KLD.png')
+    # draw(pos[0], 'POS.png')
+    # draw(site[0], 'SITE.png')
+    time, std = avg_std(get_runtime())
     # draw(time, 'TIME.png')
+    draw(std, 'TIME_std.png', 'Time standard error')
+    # print(std)
     # print(time)
     #
     # print(kld)
     # print(pos)
     # print(site)
     # print(time)
-    #
+
     # avg, std = avg_std(kld)
     # print('average for KLD is {}, standard error for KLD is {}'.format(avg, std))
     # avg, std = avg_std(pos)
@@ -205,3 +214,4 @@ if __name__ == '__main__':
     # print('average for overlap site is {}, standard error for overlap site is {}'.format(avg, std))
     # avg, std = avg_std(time)
     # print('average for runtime is {}, standard error for runtime is {}'.format(np.mean(time), np.std(time)))
+
