@@ -10,5 +10,4 @@ CS 412 project 2019
   Remember to pull every time before you start 
 
 * Version 1: Use Gibbs Sampler to find motif in sequences  
-  ![Gibbs](Gibbs.png)
-* Version 2 (if time permitted): add other algorithms (like Markov Chain?) and compare result
+* Version 2: Use MEME algorithm (better performance)
